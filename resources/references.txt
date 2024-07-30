@@ -1,0 +1,21 @@
+# colour palette generator
+https://coolors.co/
+https://coolors.co/ffeedb-2d232e-d56f3e-8499b1-a5c4d4   # chosen palette
+
+# opening files with tkinter
+https://www.pythontutorial.net/tkinter/tkinter-open-file-dialog/
+
+# openpyxl docs
+https://openpyxl.readthedocs.io/en/stable/tutorial.html
+https://openpyxl.readthedocs.io/en/stable/api/openpyxl.worksheet.worksheet.html#openpyxl.worksheet.worksheet.Worksheet
+
+# ordered set in python
+https://stackoverflow.com/a/1653974/14989075
+https://code.activestate.com/recipes/576694/
+https://pypi.org/project/ordered-set/
+--> "In Python 3.6 and later, the built-in dict type is inherently ordered.
+    If you ignore the dictionary values, that also gives you a simple ordered set,
+    with fast O(1) insertion, deletion, iteration and membership testing.
+    However, dict does not provide the list-like random access features of OrderedSet.
+    You would have to convert it to a list in O(N) to look up the index of an entry
+    or look up an entry by its index."
