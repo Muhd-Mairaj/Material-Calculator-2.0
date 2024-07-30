@@ -1,10 +1,11 @@
+import os
 import tkinter as tk
 from tkinter import filedialog as fd
 from tkinter import messagebox, ttk
 
 import openpyxl
-from material_calculator.calculator import Calculator
-from material_calculator.sheet import Sheet
+from material_calculator import Calculator
+from material_calculator.sheet import SheetAnalyser
 
 from .custom_widgets import *
 
@@ -49,10 +50,10 @@ class App(tk.Tk):
         self._create_tab2_widgets()
 
     def _create_tab1_widgets(self):
-        label = CustomLabel(self.frame1, text="This is Tab 2")
-        label.pack(pady=20)
+        label = CustomLabel(self.frame1, text="No file selected")
+        label.pack(pady=(70, 0))
 
-        button = CustomButton(self.frame1, text="Button in Tab 2")
+        button = CustomButton(self.frame1, text="Select file")
         button.pack(pady=20)
 
         def on_button_click():
@@ -62,13 +63,14 @@ class App(tk.Tk):
             )
 
             if not filename:
-                print("yes")
                 raise NotImplementedError("Currently not handling file not selected")
 
-            wb = openpyxl.load_workbook(filename, read_only=True)
-            sheet = Sheet(wb.active)
+            basename = os.path.basename(filename)
+            label.config(text=basename, foreground="#2b4d2a")
+            self.update_idletasks()
 
-            print(sheet.profiles)
+            wb = openpyxl.load_workbook(filename, read_only=True)
+            sheet_analysed = SheetAnalyser(wb.active)
 
         button.config(command=on_button_click)
 
