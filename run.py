@@ -1,8 +1,10 @@
-from material_calculator.calculator import Calculator
-import material_calculator.constants as _c
+from frontend.app import App
+
 
 def main():
-    pass
+    root = App()
+    root.mainloop()
+
 
 if __name__ == "__main__":
     main()
