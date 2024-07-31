@@ -16,7 +16,6 @@ class App(tk.Tk):
 
         self.data = {}
         self.title("Material Calculator")
-        # self.geometry("400x300")
         self._center_app(400, 450)
 
         self._create_styles()
@@ -76,7 +75,6 @@ class App(tk.Tk):
                 title="Select a file",
                 filetypes=(("Excel Worksheet", "*.xlsx"),),
             )
-            # filename = r"C:\Users\rayya\OneDrive\Desktop\GITHUB\32-Bit Python Programs\working\new\resources\Part_List.xlsx"
 
             if not filename:
                 raise NotImplementedError("Currently not handling file not selected")
@@ -88,7 +86,6 @@ class App(tk.Tk):
             wb = openpyxl.load_workbook(filename, read_only=True)
             sheet = get_sheet(wb.active)
 
-            import pprint
             print(sheet.profiles)
             print(sheet.profiles[0])
             print(sheet.get_items(sheet.profiles[0]))
