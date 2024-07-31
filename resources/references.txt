@@ -5,6 +5,15 @@ https://coolors.co/ffeedb-2d232e-d56f3e-8499b1-a5c4d4   # chosen palette
 # opening files with tkinter
 https://www.pythontutorial.net/tkinter/tkinter-open-file-dialog/
 
+# tkinter.ttk widgets documentation
+https://docs.python.org/3/library/tkinter.ttk.html
+
+# treeview documentation
+https://docs.python.org/3/library/tkinter.ttk.html#treeview
+
+# tkinter events and bindings
+https://docs.python.org/3/library/tkinter.html#events-and-bindings
+
 # openpyxl docs
 https://openpyxl.readthedocs.io/en/stable/tutorial.html
 https://openpyxl.readthedocs.io/en/stable/api/openpyxl.worksheet.worksheet.html#openpyxl.worksheet.worksheet.Worksheet
@@ -19,3 +28,10 @@ https://pypi.org/project/ordered-set/
     However, dict does not provide the list-like random access features of OrderedSet.
     You would have to convert it to a list in O(N) to look up the index of an entry
     or look up an entry by its index."
+
+# deprecation warning decorator
+https://stackoverflow.com/questions/2536307/decorators-in-the-python-standard-lib-deprecated-specifically
+https://pypi.org/project/deprecation/       # not used
+
+# python docstring conventions
+https://peps.python.org/pep-0257/
