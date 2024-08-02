@@ -42,7 +42,7 @@ class MySheet():
         return self._profiles[profile].copy()
 
     @property
-    def profiles(self) -> dict[str, dict[int, int]]:
+    def profiles(self) -> tuple[str]:
         return tuple(self._profiles.keys())
 
 

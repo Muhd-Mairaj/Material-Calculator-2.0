@@ -7,7 +7,7 @@ def deprecated(cls):
     
     @functools.wraps(cls)
     def new_cls(*args, **kwargs):
-        warnings.warn(f"{cls.__name__} is deprecated", 
+        warnings.warn(f"{cls.__name__} is deprecated.", 
                       category=DeprecationWarning, 
                       stacklevel=2)
         return cls(*args, **kwargs)
