@@ -17,6 +17,9 @@ https://docs.python.org/3/library/tkinter.ttk.html#treeview
 # tkinter events and bindings
 https://docs.python.org/3/library/tkinter.html#events-and-bindings
 
+# hide and show root window tkinter
+https://stackoverflow.com/questions/1406145/how-do-i-get-rid-of-python-tkinter-root-window
+
 # openpyxl docs
 https://openpyxl.readthedocs.io/en/stable/tutorial.html
 https://openpyxl.readthedocs.io/en/stable/api/openpyxl.worksheet.worksheet.html#openpyxl.worksheet.worksheet.Worksheet

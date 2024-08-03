@@ -1,4 +1,5 @@
 from .constants import MATERIAL_LENGTH
+import copy
 
 
 class Calculator:
@@ -21,6 +22,7 @@ class Calculator:
         self._required: int | None = None
         self._scrap: int | None = None
         self._excess: int | None = None
+        self._work_order: list[list[int]] | None = None
 
     @property
     def material_length(self) -> int:
@@ -59,6 +61,17 @@ class Calculator:
 
         return self._excess
 
+    @property
+    def work_order(self) -> list[list[int]]:
+        if self._work_order is None:
+            self.solve()
+
+        return copy.deepcopy(self._work_order)
+
+    @property
+    def results(self) -> tuple:
+        return self.required, self.scrap, self.excess
+
     def solve(self) -> tuple[int, int, int]:
         """Calculates the results using the chosen method
 
@@ -82,12 +95,14 @@ class Calculator:
         print("\nUSING SORTING METHOD")
 
         self._required, self._scrap, self._excess = (0, 0, 0)
+        self._work_order = []
 
         if self.item_count == 0:
             return (self._required, self._scrap, self._excess)
 
         self._required = 1    # will need at least 1
         cur_material_length = self.material_length
+        cur_order = []
         num_items = self.item_count
         items_dict = self.items
 
@@ -98,6 +113,7 @@ class Calculator:
             for item, count in items_dict.items():
                 while cur_material_length - item >= 0 and count != 0:
                     cur_material_length -= item
+                    cur_order.append(self.material_length-cur_material_length)
                     count -= 1
                     num_items -= 1
                     removed = True
@@ -108,8 +124,12 @@ class Calculator:
                 self._required += 1
                 self._scrap += cur_material_length
                 cur_material_length = 12000
+                self._work_order.append(cur_order)
+                cur_order = []
 
         self._excess = cur_material_length
+        if cur_order:
+            self._work_order.append(cur_order)
 
         return (self._required, self._scrap, self._excess)
 
@@ -117,12 +137,14 @@ class Calculator:
         print("\nUSING ADAPTED SORTING METHOD")
 
         self._required, self._scrap, self._excess = (0, 0, 0)
+        self._work_order = []
 
         if self.item_count == 0:
             return (self._required, self._scrap, self._excess)
 
         self._required = 1  # will need at least 1
         cur_material_length = self.material_length
+        cur_order = []
         num_items = self.item_count
         items_dict = self.items
 
@@ -134,6 +156,7 @@ class Calculator:
             for item, count in items_dict.items():
                 while cur_material_length - item >= 0 and count != 0:
                     cur_material_length -= item
+                    cur_order.append(self.material_length-cur_material_length)
                     count -= 1
                     num_items -= 1
                     removed = True
@@ -145,6 +168,7 @@ class Calculator:
             for item, count in reversed(items_dict.items()):
                 while cur_material_length - item >= 0 and count != 0:
                     cur_material_length -= item
+                    cur_order.append(self.material_length-cur_material_length)
                     count -= 1
                     num_items -= 1
                     removed = True
@@ -155,8 +179,12 @@ class Calculator:
                 self._required += 1
                 self._scrap += cur_material_length
                 cur_material_length = 12000
+                self._work_order.append(cur_order)
+                cur_order = []
 
         self._excess = cur_material_length
+        if cur_order:
+            self._work_order.append(cur_order)
 
         return (self._required, self._scrap, self._excess)
 
@@ -186,6 +214,9 @@ class Calculator:
 
     def print_stats(self, required=None, scrap=None, excess=None):
         # print(f"order of slice: {show_order}")
+        required = required or self.required
+        scrap = scrap or self.scrap
+        excess = excess or self.excess
         print(f"\033[1;32;40mrequired raw material: {required}")
         print(f"total scrap: {scrap}")
         print(f"excess at the end: {excess}\033[1;37;40m \n")

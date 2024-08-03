@@ -9,4 +9,5 @@
 - [x] add more solve methods in Calculator
 - [x] add remove button to tab1
 - [x] add remove button to tab2
-- [ ] add window to display best results
+- [x] add window to display best results
+- [x] add work order tracking and display

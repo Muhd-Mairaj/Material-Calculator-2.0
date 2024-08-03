@@ -1,7 +1,11 @@
 import os
-from tkinter import messagebox
 from tkinter import filedialog as fd
+from tkinter import messagebox
+from tkinter import Listbox
+from tkinter import Widget
 import ttkbootstrap as tb
+from ttkbootstrap.tableview import Tableview
+from ttkbootstrap.scrolled import ScrolledFrame
 from ttkbootstrap.constants import *
 
 import openpyxl
@@ -9,6 +13,7 @@ from custom_sheets import get_sheet
 from custom_sheets.my_sheets import MyReadOnlyWorksheet, MyWorksheet
 from material_calculator import Calculator
 from material_calculator.helper import check_which_better
+
 from .custom_widgets import *
 
 
@@ -17,6 +22,7 @@ class App(tb.Window):
         self._data1: dict[int, int] = {}    # data for tab1
         self._data2: dict[int, int] = {}    # data for tab2
         self._sheet: MyReadOnlyWorksheet | MyWorksheet | None = None     # this is only set if an excel sheet is used
+        self._toplevel = None
 
         super().__init__(title="Material Calculator", themename="darkly", resizable=(False, False))
         self.option_add("*Font", ("cambria", 10))
@@ -73,17 +79,17 @@ class App(tb.Window):
         def on_select_button_click():
             # reset previous tree widget
             self._clear_tree(tree)
-
-            # filename = fd.askopenfilename(
-            #     title="Select a file",
-            #     filetypes=(("Excel Worksheet", "*.xlsx"),),
-            # )
-            filename = r"C:\Users\rayya\OneDrive\Desktop\GITHUB\32-Bit Python Programs\working\new\resources\Part_List.xlsx"
+            
+            filename = fd.askopenfilename(
+                title="Select a file",
+                filetypes=(("Excel Worksheet", "*.xlsx"),),
+            )
+            # filename = r"C:\Users\rayya\OneDrive\Desktop\GITHUB\32-Bit Python Programs\working\new\resources\Part_List.xlsx"
             if not filename:
                 self._sheet = None
+                label.config(text="No file selected", bootstyle="default")
                 raise NotImplementedError("Currently not handling file not selected")
 
-            
             wb = openpyxl.load_workbook(filename, read_only=True)
             self._sheet = get_sheet(wb.active)
             profiles = self._sheet.profiles
@@ -138,7 +144,7 @@ class App(tb.Window):
         select_button = BCustomButton(self.frame1, text="Select file")
         select_button.pack(pady=20)
 
-        tree = self._create_table(self.frame1, columns=("Profiles",))
+        tree = self._create_tree(self.frame1, columns=("Profiles",))
         tree.configure(selectmode="browse")
         tree.pack(padx=20, pady=10, expand=True, fill="both")
 
@@ -188,15 +194,15 @@ class App(tb.Window):
                 raise TypeError("Invalid length or quantity")
 
             if int(length) > selected_length.get():
-                messagebox.showwarning("Invalid Length Entry", f"Item length must be withing {selected_length.get()} mm.")
+                messagebox.showwarning("Invalid Length Entry", f"Item length must be within {selected_length.get()} mm.")
                 return
 
             if int(length) in self._data2:
-                self._data2[int(length)] = self._data2.get(int(length)) + int(quantity)
-                self._update_values_tree(tree, (length, self._data2[int(length)]))
+                self._update_values_tree(tree, (length, self._data2[int(length)] + int(quantity)))
             else:
-                self._data2[int(length)] = int(quantity)
                 self._add_values_tree(tree, (length, quantity))
+
+            self._data2[int(length)] = self._data2.get(int(length), 0) + int(quantity)
 
             length_entry.delete(0, "end")
             quantity_entry.delete(0, "end")
@@ -220,6 +226,7 @@ class App(tb.Window):
             print(self._data2)
             self._analyse_data(self._data2)
 
+        # row 1
         # create label and entry for item length
         length_label = tb.Label(self.frame2, text="Enter item length (mm):", width=30)
         length_label.grid(padx=(20,0), pady=(30,15), row=1, column=1, columnspan=2, sticky="w")
@@ -227,6 +234,7 @@ class App(tb.Window):
         length_entry = tb.Entry(self.frame2, width=15)
         length_entry.grid(padx=20, pady=(30,15), row=1, column=3)
 
+        # row 2
         # create label and entry for item quantity
         quantity_label = tb.Label(self.frame2, text="Enter item quantity (mm):", width=30)
         quantity_label.grid(padx=(20,0), pady=(0,15), row=2, column=1, columnspan=2, sticky="w")
@@ -234,6 +242,7 @@ class App(tb.Window):
         quantity_entry = tb.Entry(self.frame2, width=15)
         quantity_entry.grid(padx=20, pady=(0,15), row=2, column=3)
 
+        # row 3
         # Add radiobutton for material length
         selected_length = tb.IntVar(value=12000)
         radio1 = tb.Radiobutton(self.frame2, bootstyle="info", text="12 meter", variable=selected_length, value=12000)
@@ -241,14 +250,19 @@ class App(tb.Window):
         radio1.grid(padx=(20,0), pady=15, row=3, column=1)
         radio2.grid(padx=(20,0), pady=15, row=3, column=2)
 
+        # add Add button
         add_button = BCustomButton(self.frame2, text="Add")
         add_button.grid(pady=(10,20), row=3, column=3)
 
+        # row 4
         # Add table to view items added
-        tree = self._create_table(self.frame2, columns=("Item", "Quantity"))
-        self.frame2.rowconfigure(4, minsize=400)
+        tree = self._create_tree(self.frame2, columns=("Item", "Quantity"))
         tree.grid(padx=20, pady=15, row=4, column=1, columnspan=3, sticky="news")
+        
+        # configure row 4 to have a minsize of 400
+        self.frame2.rowconfigure(4, minsize=400)
 
+        # row 5
         # Add remove, add and done buttons
         reset_button = BCustomButton(self.frame2, text="Reset", bootstyle="danger")
         reset_button.grid(padx=(20,0), pady=(10,20), row=5, column=1)
@@ -272,20 +286,7 @@ class App(tb.Window):
         quantity_entry.bind("<Return>", lambda event: on_add_button_click())
         tree.bind("<KeyPress-Delete>", lambda event: on_remove_button_click())
 
-    def _analyse_data(self, data: dict[int, int], material_length: int = -1):
-        c1 = Calculator(data, material_length, "Sort")
-        required1, scrap1, excess1 = c1.solve()
-        c1.print_stats(required1, scrap1, excess1)
-
-        c2 = Calculator(data, material_length, "Adapted Sort")
-        required2, scrap2, excess2 = c2.solve()
-        c2.print_stats(required2, scrap2, excess2)
-
-        print(check_which_better((c1, c2)))
-        print(min([c1, c2]).method)
-
-
-    def _create_table(self, root, columns: tuple[str, ...]) -> tb.Treeview:
+    def _create_tree(self, root, columns: tuple[str, ...]) -> tb.Treeview:
         # Create a Treeview widget
         tree = tb.Treeview(root, bootstyle="primary", columns=columns)
 
@@ -305,17 +306,6 @@ class App(tb.Window):
         scrollbar.pack(side="right", fill="y")
 
         return tree
-
-    def _reset_window(self, data: dict[int, int], tree: tb.Treeview):
-            if not data:
-                # reset_button.config(state="disable")
-                print("No item to clear")
-                return
-
-            value = messagebox.askyesno("Confirm?", "Are you sure you want to reset the table?")
-            if value:
-                self._clear_tree(tree)
-                self._data2.clear()
 
     def _clear_tree(self, tree: tb.Treeview):
         for item in tree.get_children():
@@ -345,6 +335,105 @@ class App(tb.Window):
             if tree.item(item, "values")[0] == data[0]:
                 tree.item(item, values=data)
                 break
+
+    def _analyse_data(self, data: dict[int, int], material_length: int = -1):
+        c1 = Calculator(data, material_length, "Sort")
+        required1, scrap1, excess1 = c1.solve()
+        c1.print_stats(required1, scrap1, excess1)
+
+        c2 = Calculator(data, material_length, "Adapted Sort")
+        required2, scrap2, excess2 = c2.solve()
+        c2.print_stats(required2, scrap2, excess2)
+
+        print(check_which_better((c1, c2)))
+        best = min([c1, c2])
+        print(best.method)
+        print(best.work_order)
+
+        self._create_display_window(best)
+
+    def _create_display_window(self, best: Calculator):
+        def on_closing():
+            # self.deiconify()
+            self._toplevel.destroy()
+
+        # self.withdraw()
+        if self._toplevel:
+            self._toplevel.destroy()
+
+        required, scrap, excess = best.results
+
+        self._toplevel = tb.Toplevel(
+            title="Best Results",
+            resizable=(False, False),
+            topmost=True,
+        )
+
+        # bind window close event to show the root window
+        self._toplevel.protocol("WM_DELETE_WINDOW", on_closing)
+
+        # row 1 - required
+        required_label = BCustomLabel(self._toplevel, text="Required:", width=27)
+        required_label.grid(padx=20, pady=20, row=1, column=1, sticky="w")
+
+        required_text = tb.Text(self._toplevel, wrap='word', height=-1, width=15)
+        required_text.insert("1.0", required)
+        required_text.config(state="disabled")
+        required_text.grid(padx=20, pady=20, row=1, column=2, sticky="e")
+
+        # row 2 - scrap
+        scrap_label = BCustomLabel(self._toplevel, text="Scrap:", width=27)
+        scrap_label.grid(padx=20, pady=(0,20), row=2, column=1, sticky="w")
+
+        scrap_text = tb.Text(self._toplevel, wrap='word', height=-1, width=15)
+        scrap_text.insert("1.0", scrap)
+        scrap_text.config(state="disabled")
+        scrap_text.grid(padx=20, pady=(0,20), row=2, column=2, sticky="e")
+
+        # row 3 - excess
+        excess_label = BCustomLabel(self._toplevel, text="Excess:", width=27)
+        excess_label.grid(padx=20, pady=(0,20), row=3, column=1, sticky="w")
+
+        excess_text = tb.Text(self._toplevel, wrap='word', height=-1, width=15)
+        excess_text.insert("1.0", excess)
+        excess_text.config(state="disabled")
+        excess_text.grid(padx=20, pady=(0,20), row=3, column=2, sticky="e")
+
+        # row 4 - work order
+        work_order_label = BCustomLabel(self._toplevel, text="Work Order:", width=15)
+        work_order_label.grid(padx=20, pady=(0,10), row=4, column=1, sticky="w")
+
+        # scrolled_frame = ScrolledFrame(self._toplevel)
+        # scrolled_frame.grid(row=5, column=1, columnspan=2, sticky="news")
+
+        listbox = Listbox(self._toplevel, borderwidth=12)
+        # listbox.pack(pady=10, expand=1, fill="both")
+        listbox.grid(padx=20, pady=(0,20), row=5, column=1, columnspan=2, sticky="news")
+        self._toplevel.rowconfigure(5, minsize=400)
+
+        vscrollbar = tb.Scrollbar(listbox, bootstyle="round info", orient="vertical", command=listbox.yview)
+        listbox.configure(yscroll=vscrollbar.set)
+        vscrollbar.pack(side="right", fill="y")
+
+        hscrollbar = tb.Scrollbar(listbox, bootstyle="round info", orient="horizontal", command=listbox.xview)
+        listbox.configure(xscrollcommand=hscrollbar.set)
+        hscrollbar.pack(side="bottom", fill="x")
+
+        return_button = BCustomButton(self._toplevel, text="Return")
+        return_button.grid(pady=(0,20), row=6, column=1, columnspan=2)
+
+        for i, row in enumerate(best.work_order, 1):
+            listbox.insert(i, ", ".join([str(item) for item in row]))
+
+        return_button.config(command=on_closing)
+
+        # self._toplevel.place_window_center()
+        self._toplevel.focus_force()
+        self._toplevel.mainloop()
+
+    def _clear_window(self, widget: Widget):
+        for child in widget.winfo_children():
+            child.destroy()
 
     # def _remove_values(self, tree: tb.Treeview, data: dict[int, int]):
     #     # get iid of row to remove
