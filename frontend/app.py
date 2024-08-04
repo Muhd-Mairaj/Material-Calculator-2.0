@@ -4,8 +4,6 @@ from tkinter import messagebox
 from tkinter import Listbox
 from tkinter import Widget
 import ttkbootstrap as tb
-from ttkbootstrap.tableview import Tableview
-from ttkbootstrap.scrolled import ScrolledFrame
 from ttkbootstrap.constants import *
 
 import openpyxl
@@ -41,23 +39,6 @@ class App(tb.Window):
     def data2(self) -> dict[int, int]:
         return self._data2.copy()
 
-    # def _center_app(self, required_width: int, required_height: int):
-    #     """Centers the application window
-
-    #     Args:
-    #         required_width (int): The required width of the centered application window
-    #         required_height (int): The required height of the centered application window
-    #     """
-    #     screen_width = self.winfo_screenwidth()
-    #     screen_height = self.winfo_screenheight()
-    #     position_right = int(screen_width/2 - required_width/2)
-    #     position_down = int(screen_height/2 - required_height/2)
-    #     self.geometry(f"{required_width}x{required_height}+{position_right}+{position_down}")
-
-    # def _create_styles(self):
-    #     style = ttk.Style()
-    #     style.configure("TFrame", background='#A5C4D4')
-
     def _create_widgets(self):
         self.notebook = tb.Notebook(self)
         self.notebook.pack(expand=True, fill='both')
@@ -84,7 +65,6 @@ class App(tb.Window):
                 title="Select a file",
                 filetypes=(("Excel Worksheet", "*.xlsx"),),
             )
-            # filename = r"C:\Users\rayya\OneDrive\Desktop\GITHUB\32-Bit Python Programs\working\new\resources\Part_List.xlsx"
             if not filename:
                 self._sheet = None
                 label.config(text="No file selected", bootstyle="default")
@@ -321,10 +301,6 @@ class App(tb.Window):
         if children:
             last_iid = int(children[-1])
 
-        # if isinstance(data, dict):
-        #     # Insert data into the table
-        #     for i, values in enumerate(data.items()):
-        #         tree.insert(parent='', index='end', iid=last_iid++1+i, text='', values=values)
         if isinstance(data, tuple):
             tree.insert(parent='', index='end', iid=last_iid+1, text='', values=data)
         else:
@@ -399,26 +375,27 @@ class App(tb.Window):
         excess_text.config(state="disabled")
         excess_text.grid(padx=20, pady=(0,20), row=3, column=2, sticky="e")
 
-        # row 4 - work order
+        # row 4 - work order label
         work_order_label = BCustomLabel(self._toplevel, text="Work Order:", width=15)
         work_order_label.grid(padx=20, pady=(0,10), row=4, column=1, sticky="w")
 
-        # scrolled_frame = ScrolledFrame(self._toplevel)
-        # scrolled_frame.grid(row=5, column=1, columnspan=2, sticky="news")
-
+        # row 5 - work order display
+        # create listbox
         listbox = Listbox(self._toplevel, borderwidth=12)
-        # listbox.pack(pady=10, expand=1, fill="both")
         listbox.grid(padx=20, pady=(0,20), row=5, column=1, columnspan=2, sticky="news")
         self._toplevel.rowconfigure(5, minsize=400)
 
+        # add scrollbar vertical
         vscrollbar = tb.Scrollbar(listbox, bootstyle="round info", orient="vertical", command=listbox.yview)
         listbox.configure(yscroll=vscrollbar.set)
         vscrollbar.pack(side="right", fill="y")
 
+        # add scrollbar horizontal
         hscrollbar = tb.Scrollbar(listbox, bootstyle="round info", orient="horizontal", command=listbox.xview)
         listbox.configure(xscrollcommand=hscrollbar.set)
         hscrollbar.pack(side="bottom", fill="x")
 
+        # row 6 - back button
         return_button = BCustomButton(self._toplevel, text="Return")
         return_button.grid(pady=(0,20), row=6, column=1, columnspan=2)
 
@@ -427,25 +404,10 @@ class App(tb.Window):
 
         return_button.config(command=on_closing)
 
-        # self._toplevel.place_window_center()
+        self._toplevel.place_window_center()
         self._toplevel.focus_force()
         self._toplevel.mainloop()
 
     def _clear_window(self, widget: Widget):
         for child in widget.winfo_children():
             child.destroy()
-
-    # def _remove_values(self, tree: tb.Treeview, data: dict[int, int]):
-    #     # get iid of row to remove
-    #     iid_range = tree.selection()
-    #     print(iid_range)
-    #     if not iid_range:
-    #         return
-
-    #     # get values for rows to remove, and remove rows
-    #     for iid in iid_range:
-    #         length, _ = tree.item(iid, "values")
-
-    #         tree.delete(iid)
-    #         del data[int(length)]
-
