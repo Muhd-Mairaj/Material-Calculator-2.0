@@ -2,6 +2,9 @@
 https://coolors.co/
 https://coolors.co/ffeedb-2d232e-d56f3e-8499b1-a5c4d4   # chosen palette
 
+# ttkbootstrap
+https://ttkbootstrap.readthedocs.io/en/latest/
+
 # opening files with tkinter
 https://www.pythontutorial.net/tkinter/tkinter-open-file-dialog/
 
@@ -13,6 +16,9 @@ https://docs.python.org/3/library/tkinter.ttk.html#treeview
 
 # tkinter events and bindings
 https://docs.python.org/3/library/tkinter.html#events-and-bindings
+
+# hide and show root window tkinter
+https://stackoverflow.com/questions/1406145/how-do-i-get-rid-of-python-tkinter-root-window
 
 # openpyxl docs
 https://openpyxl.readthedocs.io/en/stable/tutorial.html
